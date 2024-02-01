@@ -18,6 +18,7 @@ import ReplayDetail from "../views/studio/ReplayDetail.vue";
 import BanListManagement from "../views/studio/BanListManagement.vue";
 import StudioMain from "../views/studio/StudioMain.vue";
 import AuthCallBack from "../views/auth/AuthCallBack.vue";
+import OpenVIdutest from "@/views/studio/OpenVIdutest.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -127,6 +128,11 @@ const router = createRouter({
       name: "KakaoAuthCallback",
       component: AuthCallBack,
     },
+    {
+      path: "/openvidutest",
+      name: "OpenviduTest",
+      component: OpenVIdutest,
+    }
   ],
 });
 
