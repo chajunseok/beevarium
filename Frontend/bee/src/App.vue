@@ -8,6 +8,8 @@ import { storeToRefs } from "pinia";
 
 const route = useRoute();
 
+// test1111
+
 // navbar가 안보여야 하는 컴포넌트
 const invisiblePaths_navbar = [
   "/user/login",
