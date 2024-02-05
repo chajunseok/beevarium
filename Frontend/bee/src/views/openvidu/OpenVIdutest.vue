@@ -47,11 +47,13 @@ const openSession = async () => {
 // 세션 닫기
 const closeSession = async () => {
   try {
-    await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}`);
-    console.log("세션 닫힘");
+    await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}`)
+    console.log("세션 닫힘")
     //클라이언트측 세션 닫기 -> 필요없나??
-  } catch (error) {
-    console.error("Error", error);
+  }
+  catch (error) {
+    console.error("Error",error)
+
   }
 };
 // 세션 연결 (connection) - 방송 만든사람
