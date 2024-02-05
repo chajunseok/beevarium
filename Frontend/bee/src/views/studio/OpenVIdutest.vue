@@ -48,7 +48,6 @@ const closeSession = async () => {
   try {
     await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}`)
     console.log("세션 닫힘")
-    //클라이언트측 세션 닫기 -> 필요없나??
   }
   catch (error) {
     console.error("Error",error)
