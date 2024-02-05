@@ -18,7 +18,9 @@ import ReplayDetail from "../views/studio/ReplayDetail.vue";
 import BanListManagement from "../views/studio/BanListManagement.vue";
 import StudioMain from "../views/studio/StudioMain.vue";
 import AuthCallBack from "../views/auth/AuthCallBack.vue";
-import OpenVIdutest from "@/views/studio/OpenVIdutest.vue";
+import OpenVIdutest from "@/views/openvidu/OpenVIdutest.vue";
+import Openviduopen from "@/views/openvidu/Openviduopen.vue";
+import OpenviduView from "@/views/openvidu/OpenviduView.vue";
 import DashboardTest from "@/views/studio/DashboardTest.vue";
 
 const router = createRouter({
@@ -135,10 +137,20 @@ const router = createRouter({
       component: OpenVIdutest,
     },
     {
+      path: "/openvidutestview",
+      name: "OpenviduView",
+      component: OpenviduView,
+    },
+    {
+      path: "/openvidutestopen",
+      name: "Openviduopen",
+      component: Openviduopen,
+    },
+    {
       path: "/dashboardtest",
       name: "DashboardTest",
       component: DashboardTest,
-    }
+    },
   ],
 });
 
