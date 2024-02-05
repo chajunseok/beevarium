@@ -2,7 +2,6 @@
 import axios from 'axios'
 import { OpenVidu } from 'openvidu-browser'
 var session //전역 스코프에서 선언
-var subscriber
 var OV = new OpenVidu()
 var mainstreamer
 
@@ -86,6 +85,7 @@ const connectSession = async (role="PUBLISHER") => {
         mainstreamer = publisher
         session.publish(publisher).then(() => {
           console.log("화면 공유 스트림 발생 성공")
+          //여기서 전역변수에 저장 
         }).catch((error) => {
           console.error("화면 공유 스트림 발행 실패",error)
         })
@@ -104,6 +104,7 @@ const connectSession = async (role="PUBLISHER") => {
 // 세션 연결 - 방송 참여자
 // ssesionID = opensession 하면 전역변수로 생김 
 const subscribeStream = async (role = "SUBSCRIBER") => {
+  let subscriber
   try {
     const response = await axios.post(`${API_SERVER_URL}openvidu/api/sessions/CUSTOM_SESSION_ID/connection`, {
       "type": "WEBRTC",
@@ -120,27 +121,25 @@ const subscribeStream = async (role = "SUBSCRIBER") => {
     })
     //커넥트 아이디, 토큰 - 내 연결에서 받아와야 함. sessionID = 퍼블리셔갸 열어놓은 sessionID 글로벌 스코프로 선언되어 있음.
     connectId = response.data.connectionId
-    console.log("세션 connection", response.data)
+    // console.log("세션 connection", response.data)
     const token = response.data.connectionToken
-    //구독자는 세션 초기화 필요없음
-    // var sub_session = OV.initSession()
     session.on('streamCreated', (event) => {
           subscriber = session.subscribe(event.stream,"subscriber-video")
         })
     session.connect(token)
       .then(() => {
-        console.log("구독자 연결 성공")
+        console.log("새션 연결 성공, subscriber 연결 성공")
       })
       .catch(error => {
-        console.error("구독자 연결 실패", error)
+        console.error("subscriber 연결 실패", error)
       }
       )
   }
   catch (error) {
-    console.error("Error",error)
+    console.error("세션 연결 실패",error)
   }
 }
-//세션 연결 끊기
+//세션 닫기 (방송자)
 const disconnectSession = async () => {
   try {
     //화면 공유 중지
@@ -177,7 +176,15 @@ const retrieveAll = async () => {
     console.error("Error",error)
   }
 }
-
+// 녹화 시작
+// const startRecording = async () => {
+//   try {
+//     const response = await axios.post(`${API_SERVER_URL}openvidu/api/recordings/start`, {
+      
+//     })
+    
+//   }
+// }
 const disablevideo = () => {
   const videoEnabled = !mainstreamer.stream.videoActive
   mainstreamer.publishVideo(videoEnabled)
@@ -207,6 +214,7 @@ const disablevideo = () => {
       <button @click="retrieveAll"> 모든 세션 확인</button>
       <!--세션에 연결된 connection 확인하기 위한 get 요청 -->
       <button @click="connectionList">연결된 커넥션 확인</button>
+      <button @click="startRecording">녹화 시작</button>
     </div>
   </div>
   

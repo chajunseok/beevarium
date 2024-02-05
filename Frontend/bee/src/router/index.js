@@ -19,6 +19,7 @@ import BanListManagement from "../views/studio/BanListManagement.vue";
 import StudioMain from "../views/studio/StudioMain.vue";
 import AuthCallBack from "../views/auth/AuthCallBack.vue";
 import OpenVIdutest from "@/views/studio/OpenVIdutest.vue";
+import DashboardTest from "@/views/studio/DashboardTest.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -132,6 +133,11 @@ const router = createRouter({
       path: "/openvidutest",
       name: "OpenviduTest",
       component: OpenVIdutest,
+    },
+    {
+      path: "/dashboardtest",
+      name: "DashboardTest",
+      component: DashboardTest,
     }
   ],
 });
