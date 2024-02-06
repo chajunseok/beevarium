@@ -1,7 +1,7 @@
 <script setup>
 import axios from "axios";
 import { OpenVidu } from "openvidu-browser";
-var session; //전역 스코프에서 선언
+var session;
 var OV = new OpenVidu();
 var mainstreamer;
 
@@ -12,30 +12,31 @@ let connectId = "";
 const openSession = async () => {
   try {
     // 성공적으로 통신시 클라이언트측 세션 초기화
-    session = OV.initSession()
-    console.log(session)
-    const response = await axios.post(`${API_SERVER_URL}openvidu/api/sessions`, {
-      "mediaMode": "ROUTED",
-      "recordingMode": "MANUAL",
-      "customSessionId": "CUSTOM_SESSION_ID",
-      "forcedVideoCodec": "VP8",
-      "allowTranscoding": false,
-      "defaultRecordingProperties": {
-          "name": "MyRecording",
-          "hasAudio": true,
-          "hasVideo": true,
-          "outputMode": "COMPOSED",
-          "recordingLayout": "BEST_FIT",
-          "resolution": "1280x720",
-          "frameRate": 25,
-          "shmSize": 536870912,
-       },
-    })
-    console.log('세션 생성됨', response.data)
-    sessionId = response.data
-  
-    //세션 열기 성공시, 자동으로 publisher로 연결
-    await connectSession("PUBLISHER")
+    session = OV.initSession();
+    console.log(session);
+    const response = await axios.post(
+      `${API_SERVER_URL}openvidu/api/sessions`,
+      {
+        mediaMode: "ROUTED",
+        recordingMode: "MANUAL",
+        customSessionId: "CUSTOM_SESSION_ID2",
+        forcedVideoCodec: "VP8",
+        allowTranscoding: false,
+        defaultRecordingProperties: {
+          name: "MyRecording",
+          hasAudio: true,
+          hasVideo: true,
+          outputMode: "COMPOSED",
+          recordingLayout: "BEST_FIT",
+          resolution: "1280x720",
+          frameRate: 25,
+          shmSize: 536870912,
+          mediaNode: "media_i-0c58bcdd26l11d0sd",
+        },
+      }
+    );
+    console.log("세션 생성됨", response.data);
+    sessionId = response.data;
 
     //세션 열기 성공시, 자동으로 publisher로 연결
     await connectSession("PUBLISHER");
@@ -43,19 +44,7 @@ const openSession = async () => {
     console.error("Error", error);
   }
 };
-// 세션 닫기
-const closeSession = async () => {
-  try {
-    await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}`)
-    console.log("세션 닫힘")
-    //클라이언트측 세션 닫기 -> 필요없나??
-  }
-  catch (error) {
-    console.error("Error",error)
 
-  }
-};
-// 세션 연결 (connection) - 방송 만든사람
 const connectSession = async (role = "PUBLISHER") => {
   try {
     const response = await axios.post(
@@ -104,64 +93,30 @@ const connectSession = async (role = "PUBLISHER") => {
     console.error("Error", error);
   }
 };
-// 세션 연결 - 방송 참여자
-// ssesionID = opensession 하면 전역변수로 생김
-const subscribeStream = async (role = "SUBSCRIBER") => {
-  let subscriber;
+// 세션 닫기
+const closeSession = async () => {
   try {
-    const response = await axios.post(
-      `${API_SERVER_URL}openvidu/api/sessions/CUSTOM_SESSION_ID/connection`,
-      {
-        type: "WEBRTC",
-        data: "My Server Data",
-        record: true,
-        role: "SUBSCRIBER",
-        kurentoOptions: {
-          videoMaxRecvBandwidth: 1000,
-          videoMinRecvBandwidth: 300,
-          videoMaxSendBandwidth: 1000,
-          videoMinSendBandwidth: 300,
-          allowedFilters: ["GStreamerFilter", "ZBarFilter"],
-        },
-      })
-
-    //커넥트 아이디, 토큰 - 내 연결에서 받아와야 함. sessionID = 퍼블리셔갸 열어놓은 sessionID 글로벌 스코프로 선언되어 있음.
-    connectId = response.data.connectionId;
-    // console.log("세션 connection", response.data)
-    const token = response.data.connectionToken
-    session.on('streamCreated', (event) => {
-          subscriber = session.subscribe(event.stream,"subscriber-video")
-    })
-    // 세션 종료시 
-    session.on('sessionDisconnected', (event) => {
-      console.log("세션이 종료되었습니다.")
-    })
-    session.connect(token)
-      .then(() => {
-        console.log("새션 연결 성공, subscriber 연결 성공");
-      })
-      .catch((error) => {
-        console.error("subscriber 연결 실패", error);
-      });
+    await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}`);
+    console.log("세션 닫힘");
+    //클라이언트측 세션 닫기 -> 필요없나??
   } catch (error) {
-    console.error("세션 연결 실패", error);
+    console.error("Error", error);
   }
 };
+
 //세션 닫기 (방송자)
 const disconnectSession = async () => {
   try {
     //화면 공유 중지
     if (mainstreamer) {
       session.unpublish(mainstreamer);
-      // 세션에 연결된 모든 연결 끊기
-      session.disconnect()
-      //세션 없애기
-      await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection/${connectId}`)
-      console.log("세션 연결 끊김")
     }
-  }
- 
-    catch (error) {
+    await axios.delete(
+      `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection/${connectId}`
+    );
+    //퍼블리시 종료
+    console.log("세션 연결 끊김");
+  } catch (error) {
     console.error("Error", error);
   }
 };
@@ -195,10 +150,9 @@ const retrieveAll = async () => {
 //   }
 // }
 const disablevideo = () => {
-  const videoEnabled = !mainstreamer.stream.videoActive
-  mainstreamer.publishVideo(videoEnabled)
-}
-
+  const videoEnabled = !mainstreamer.stream.videoActive;
+  mainstreamer.publishVideo(videoEnabled);
+};
 </script>
 
 <template>
@@ -216,9 +170,7 @@ const disablevideo = () => {
       <!-- <div class="subscribe"></div> -->
       <button @click="openSession">방송하기(스트리머)</button>
       <button @click="closeSession">세션 닫기</button>
-      <!-- <button @click="connectSession('SUBSCRIBER')">구독자로 세션 연결하기</button> -->
       <button @click="disconnectSession">세션 연결(connection) 끊기</button>
-      <button @click="subscribeStream">구독자로 세션 연결</button>
       <!-- 현재 열려있는 모든 세션 확인 -->
       <button @click="retrieveAll">모든 세션 확인</button>
       <!--세션에 연결된 connection 확인하기 위한 get 요청 -->
