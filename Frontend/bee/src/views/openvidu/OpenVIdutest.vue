@@ -12,30 +12,33 @@ let connectId = "";
 const openSession = async () => {
   try {
     // 성공적으로 통신시 클라이언트측 세션 초기화
-    session = OV.initSession()
-    console.log(session)
-    const response = await axios.post(`${API_SERVER_URL}openvidu/api/sessions`, {
-      "mediaMode": "ROUTED",
-      "recordingMode": "MANUAL",
-      "customSessionId": "CUSTOM_SESSION_ID",
-      "forcedVideoCodec": "VP8",
-      "allowTranscoding": false,
-      "defaultRecordingProperties": {
-          "name": "MyRecording",
-          "hasAudio": true,
-          "hasVideo": true,
-          "outputMode": "COMPOSED",
-          "recordingLayout": "BEST_FIT",
-          "resolution": "1280x720",
-          "frameRate": 25,
-          "shmSize": 536870912,
-       },
-    })
-    console.log('세션 생성됨', response.data)
-    sessionId = response.data
-  
+    session = OV.initSession();
+    console.log(session);
+    const response = await axios.post(
+      `${API_SERVER_URL}openvidu/api/sessions`,
+      {
+        mediaMode: "ROUTED",
+        recordingMode: "MANUAL",
+        customSessionId: "CUSTOM_SESSION_ID",
+        forcedVideoCodec: "VP8",
+        allowTranscoding: false,
+        defaultRecordingProperties: {
+          name: "MyRecording",
+          hasAudio: true,
+          hasVideo: true,
+          outputMode: "COMPOSED",
+          recordingLayout: "BEST_FIT",
+          resolution: "1280x720",
+          frameRate: 25,
+          shmSize: 536870912,
+        },
+      }
+    );
+    console.log("세션 생성됨", response.data);
+    sessionId = response.data;
+
     //세션 열기 성공시, 자동으로 publisher로 연결
-    await connectSession("PUBLISHER")
+    await connectSession("PUBLISHER");
 
     //세션 열기 성공시, 자동으로 publisher로 연결
     await connectSession("PUBLISHER");
@@ -46,13 +49,11 @@ const openSession = async () => {
 // 세션 닫기
 const closeSession = async () => {
   try {
-    await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}`)
-    console.log("세션 닫힘")
+    await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}`);
+    console.log("세션 닫힘");
     //클라이언트측 세션 닫기 -> 필요없나??
-  }
-  catch (error) {
-    console.error("Error",error)
-
+  } catch (error) {
+    console.error("Error", error);
   }
 };
 // 세션 연결 (connection) - 방송 만든사람
@@ -123,20 +124,22 @@ const subscribeStream = async (role = "SUBSCRIBER") => {
           videoMinSendBandwidth: 300,
           allowedFilters: ["GStreamerFilter", "ZBarFilter"],
         },
-      })
+      }
+    );
 
     //커넥트 아이디, 토큰 - 내 연결에서 받아와야 함. sessionID = 퍼블리셔갸 열어놓은 sessionID 글로벌 스코프로 선언되어 있음.
     connectId = response.data.connectionId;
     // console.log("세션 connection", response.data)
-    const token = response.data.connectionToken
-    session.on('streamCreated', (event) => {
-          subscriber = session.subscribe(event.stream,"subscriber-video")
-    })
-    // 세션 종료시 
-    session.on('sessionDisconnected', (event) => {
-      console.log("세션이 종료되었습니다.")
-    })
-    session.connect(token)
+    const token = response.data.connectionToken;
+    session.on("streamCreated", (event) => {
+      subscriber = session.subscribe(event.stream, "subscriber-video");
+    });
+    // 세션 종료시
+    session.on("sessionDisconnected", (event) => {
+      console.log("세션이 종료되었습니다.");
+    });
+    session
+      .connect(token)
       .then(() => {
         console.log("새션 연결 성공, subscriber 연결 성공");
       })
@@ -154,14 +157,14 @@ const disconnectSession = async () => {
     if (mainstreamer) {
       session.unpublish(mainstreamer);
       // 세션에 연결된 모든 연결 끊기
-      session.disconnect()
+      // session.disconnect()
       //세션 없애기
-      await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection/${connectId}`)
-      console.log("세션 연결 끊김")
+      await axios.delete(
+        `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection/${connectId}`
+      );
+      console.log("세션 연결 끊김");
     }
-  }
- 
-    catch (error) {
+  } catch (error) {
     console.error("Error", error);
   }
 };
@@ -195,10 +198,9 @@ const retrieveAll = async () => {
 //   }
 // }
 const disablevideo = () => {
-  const videoEnabled = !mainstreamer.stream.videoActive
-  mainstreamer.publishVideo(videoEnabled)
-}
-
+  const videoEnabled = !mainstreamer.stream.videoActive;
+  mainstreamer.publishVideo(videoEnabled);
+};
 </script>
 
 <template>

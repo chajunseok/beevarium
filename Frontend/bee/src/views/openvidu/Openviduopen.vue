@@ -6,43 +6,36 @@ var OV = new OpenVidu();
 var mainstreamer;
 
 const API_SERVER_URL = import.meta.env.VITE_API_SERVER_URL;
-let sessionId = "CUSTOM_SESSION_ID2";
+let sessionId = "";
 let connectId = "";
 
 const openSession = async () => {
   try {
     // 성공적으로 통신시 클라이언트측 세션 초기화
     session = OV.initSession();
-    const sessionPost = function () {
-      axios({
-        method: "post",
-        url: `${API_SERVER_URL}openvidu/api/sessions`,
-        data: {
-          mediaMode: "ROUTED",
-          recordingMode: "MANUAL",
-          customSessionId: "CUSTOM_SESSION_ID2",
-          forcedVideoCodec: "VP8",
-          allowTranscoding: false,
-          defaultRecordingProperties: {
-            name: "MyRecording",
-            hasAudio: true,
-            hasVideo: true,
-            outputMode: "COMPOSED",
-            recordingLayout: "BEST_FIT",
-            resolution: "1280x720",
-            frameRate: 25,
-            shmSize: 536870912,
-          },
+    const response = await axios.post(
+      `${API_SERVER_URL}openvidu/api/sessions`,
+      {
+        mediaMode: "ROUTED",
+        recordingMode: "MANUAL",
+        customSessionId: "CUSTOM_SESSION_ID2",
+        forcedVideoCodec: "VP8",
+        allowTranscoding: false,
+        defaultRecordingProperties: {
+          name: "MyRecording",
+          hasAudio: true,
+          hasVideo: true,
+          outputMode: "COMPOSED",
+          recordingLayout: "BEST_FIT",
+          resolution: "1280x720",
+          frameRate: 25,
+          shmSize: 536870912,
         },
-      })
-        .then((res) => {
-          console.log("세션 생성됨", res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-    //세션 열기 성공시, 자동으로 publisher로 연결
+      }
+    );
+    console.log("세션 생성됨", response.data);
+    sessionId = response.data;
+    // 세션 열기 성공시, 자동으로 publisher로 연결
     await connectSession("PUBLISHER");
   } catch (error) {
     console.error("Error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11", error);
@@ -71,23 +64,26 @@ const connectSession = async (role = "PUBLISHER") => {
     connectId = response.data.connectionId;
     console.log("세션 connection", response.data);
     const token = response.data.connectionToken;
-    //여기서 client 단 세션 join (with token)
+
+    // 클라이언트 단 세션 join (with token)
     session
       .connect(token)
       .then(() => {
         console.log("클라이언트측 세션 연결 성공");
+
+        // 퍼블리셔의 카메라 및 화면 공유 설정
         var publisher = OV.initPublisher("my-video", {
-          videoSource: "screen", //카메라 X, 화면 공유 설정
+          videoSource: ["camera", "screen"], // 카메라와 화면 공유 설정
         });
         mainstreamer = publisher;
+
         session
           .publish(publisher)
           .then(() => {
-            console.log("화면 공유 스트림 발생 성공");
-            //여기서 전역변수에 저장
+            console.log("화면 및 카메라 공유 스트림 발생 성공", sessionId);
           })
           .catch((error) => {
-            console.error("화면 공유 스트림 발행 실패", error);
+            console.error("화면 및 카메라 공유 스트림 발행 실패", error);
           });
       })
       .catch((error) => {
@@ -97,6 +93,7 @@ const connectSession = async (role = "PUBLISHER") => {
     console.error("Error", error);
   }
 };
+
 // 세션 닫기
 const closeSession = async () => {
   try {
@@ -133,6 +130,50 @@ const connectionList = async () => {
     console.log("연결된 세션 정보", response.data);
   } catch (error) {
     console.error("Error", error);
+  }
+};
+// 세션 연결 - 방송 참여자
+// ssesionID = opensession 하면 전역변수로 생김
+const subscribeStream = async (role = "SUBSCRIBER") => {
+  let subscriber;
+  try {
+    const response = await axios.post(
+      `${API_SERVER_URL}openvidu/api/sessions/CUSTOM_SESSION_ID2/connection`,
+      {
+        type: "WEBRTC",
+        data: "My Server Data",
+        record: true,
+        role: "SUBSCRIBER",
+        kurentoOptions: {
+          videoMaxRecvBandwidth: 1000,
+          videoMinRecvBandwidth: 300,
+          videoMaxSendBandwidth: 1000,
+          videoMinSendBandwidth: 300,
+          allowedFilters: ["GStreamerFilter", "ZBarFilter"],
+        },
+      }
+    );
+    console.log(response.data);
+    console.log(connectId);
+    //커넥트 아이디, 토큰 - 내 연결에서 받아와야 함. sessionID = 퍼블리셔갸 열어놓은 sessionID 글로벌 스코프로 선언되어 있음.
+    connectId = response.data.connectionId;
+    // console.log("세션 connection", response.data)
+    const token = response.data.connectionToken;
+    session.on("streamCreated", (event) => {
+      subscriber = session.subscribe(event.stream, "subscriber-video");
+    });
+    session
+      .connect(token)
+      .then(() => {
+        console.log(response.data);
+        console.log(connectId);
+        console.log("새션 연결 성공, subscriber 연결 성공");
+      })
+      .catch((error) => {
+        console.error("subscriber 연결 실패", error);
+      });
+  } catch (error) {
+    console.error("세션 연결 실패", error);
   }
 };
 
@@ -180,6 +221,7 @@ const disablevideo = () => {
       <!--세션에 연결된 connection 확인하기 위한 get 요청 -->
       <button @click="connectionList">연결된 커넥션 확인</button>
       <button @click="startRecording">녹화 시작</button>
+      <button @click="subscribeStream">구독자로 세션 연결</button>
     </div>
   </div>
 </template>
