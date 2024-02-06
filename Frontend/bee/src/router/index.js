@@ -22,7 +22,7 @@ import OpenVIdutest from "@/views/openvidu/OpenVIdutest.vue";
 import Openviduopen from "@/views/openvidu/Openviduopen.vue";
 import OpenviduView from "@/views/openvidu/OpenviduView.vue";
 import DashboardTest from "@/views/studio/DashboardTest.vue";
-
+import OpenViduLogic from "@/views/openvidu/OpenViduLogic1.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -151,6 +151,12 @@ const router = createRouter({
       name: "DashboardTest",
       component: DashboardTest,
     },
+    {
+      path: '/logic1',
+      name: "OpenviduLogic1",
+      component: OpenViduLogic,
+    },
+
   ],
 });
 
