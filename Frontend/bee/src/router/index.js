@@ -22,7 +22,11 @@ import BanListManagement from "../views/studio/BanListManagement.vue";
 import StudioMain from "../views/studio/StudioMain.vue";
 import StudioSetting from "../views/studio/StudioSetting.vue";
 import AuthCallBack from "../views/auth/AuthCallBack.vue";
-
+import OpenVIdutest from "@/views/openvidu/OpenVIdutest.vue";
+import Openviduopen from "@/views/openvidu/Openviduopen.vue";
+import OpenviduView from "@/views/openvidu/OpenviduView.vue";
+import DashboardTest from "@/views/studio/DashboardTest.vue";
+import OpenViduLogic from "@/views/openvidu/OpenViduLogic1.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -154,6 +158,32 @@ const router = createRouter({
       name: "KakaoAuthCallback",
       component: AuthCallBack,
     },
+    {
+      path: "/openvidutest",
+      name: "OpenviduTest",
+      component: OpenVIdutest,
+    },
+    {
+      path: "/openvidutestview",
+      name: "OpenviduView",
+      component: OpenviduView,
+    },
+    {
+      path: "/openvidutestopen",
+      name: "Openviduopen",
+      component: Openviduopen,
+    },
+    {
+      path: "/dashboardtest",
+      name: "DashboardTest",
+      component: DashboardTest,
+    },
+    {
+      path: '/logic1',
+      name: "OpenviduLogic1",
+      component: OpenViduLogic,
+    },
+
   ],
 });
 
