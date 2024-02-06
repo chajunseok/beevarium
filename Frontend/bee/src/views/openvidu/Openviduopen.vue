@@ -6,42 +6,46 @@ var OV = new OpenVidu();
 var mainstreamer;
 
 const API_SERVER_URL = import.meta.env.VITE_API_SERVER_URL;
-let sessionId = "";
+let sessionId = "CUSTOM_SESSION_ID2";
 let connectId = "";
 
 const openSession = async () => {
   try {
     // 성공적으로 통신시 클라이언트측 세션 초기화
     session = OV.initSession();
-    console.log(session);
-    const response = await axios.post(
-      `${API_SERVER_URL}openvidu/api/sessions`,
-      {
-        mediaMode: "ROUTED",
-        recordingMode: "MANUAL",
-        customSessionId: "CUSTOM_SESSION_ID2",
-        forcedVideoCodec: "VP8",
-        allowTranscoding: false,
-        defaultRecordingProperties: {
-          name: "MyRecording",
-          hasAudio: true,
-          hasVideo: true,
-          outputMode: "COMPOSED",
-          recordingLayout: "BEST_FIT",
-          resolution: "1280x720",
-          frameRate: 25,
-          shmSize: 536870912,
-          mediaNode: "media_i-0c58bcdd26l11d0sd",
+    const sessionPost = function () {
+      axios({
+        method: "post",
+        url: `${API_SERVER_URL}openvidu/api/sessions`,
+        data: {
+          mediaMode: "ROUTED",
+          recordingMode: "MANUAL",
+          customSessionId: "CUSTOM_SESSION_ID2",
+          forcedVideoCodec: "VP8",
+          allowTranscoding: false,
+          defaultRecordingProperties: {
+            name: "MyRecording",
+            hasAudio: true,
+            hasVideo: true,
+            outputMode: "COMPOSED",
+            recordingLayout: "BEST_FIT",
+            resolution: "1280x720",
+            frameRate: 25,
+            shmSize: 536870912,
+          },
         },
-      }
-    );
-    console.log("세션 생성됨", response.data);
-    sessionId = response.data;
-
+      })
+        .then((res) => {
+          console.log("세션 생성됨", res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
     //세션 열기 성공시, 자동으로 publisher로 연결
     await connectSession("PUBLISHER");
   } catch (error) {
-    console.error("Error", error);
+    console.error("Error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11", error);
   }
 };
 

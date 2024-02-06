@@ -60,7 +60,7 @@ const closeSession = async () => {
 const connectSession = async (role = "PUBLISHER") => {
   try {
     const response = await axios.post(
-      `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection`,
+      `${API_SERVER_URL}/openvidu/api/sessions/${sessionId}/connection`,
       {
         type: "WEBRTC",
         data: "My Server Data",
