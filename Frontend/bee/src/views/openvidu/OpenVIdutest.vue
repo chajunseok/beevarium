@@ -29,7 +29,6 @@ const openSession = async () => {
           "resolution": "1280x720",
           "frameRate": 25,
           "shmSize": 536870912,
-          "mediaNode": "media_i-0c58bcdd26l11d0sd",
        },
     })
     console.log('세션 생성됨', response.data)
@@ -117,14 +116,18 @@ const subscribeStream = async (role = "SUBSCRIBER") => {
         "videoMinSendBandwidth": 300,
         "allowedFilters": ["GStreamerFilter", "ZBarFilter"]
       }
-    })
+    })``
     //커넥트 아이디, 토큰 - 내 연결에서 받아와야 함. sessionID = 퍼블리셔갸 열어놓은 sessionID 글로벌 스코프로 선언되어 있음.
     connectId = response.data.connectionId
     // console.log("세션 connection", response.data)
     const token = response.data.connectionToken
     session.on('streamCreated', (event) => {
           subscriber = session.subscribe(event.stream,"subscriber-video")
-        })
+    })
+    // 세션 종료시 
+    session.on('sessionDisconnected', (event) => {
+      console.log("세션이 종료되었습니다.")
+    })
     session.connect(token)
       .then(() => {
         console.log("새션 연결 성공, subscriber 연결 성공")
@@ -145,8 +148,10 @@ const disconnectSession = async () => {
     if (mainstreamer) {
       session.unpublish(mainstreamer)
     }
+    // 세션에 연결된 모든 연결 끊기
+    session.disconnect()
+    //세션 없애기
     await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection/${connectId}`)
-    //퍼블리시 종료
     console.log("세션 연결 끊김")
   }
 
@@ -188,6 +193,8 @@ const disablevideo = () => {
   const videoEnabled = !mainstreamer.stream.videoActive
   mainstreamer.publishVideo(videoEnabled)
 }
+
+
 </script>
 
 <template>
