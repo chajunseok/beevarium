@@ -228,6 +228,8 @@ onMounted(() => {
 .screen {
   width: 1280px;
   height: 720px;
+  display: flex;
+  justify-content: center;
 }
 #screen-container.expanded {
   width: 1470px;

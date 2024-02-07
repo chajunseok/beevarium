@@ -81,7 +81,7 @@ export const useOVPStore = defineStore(
             // 퍼블리셔의 카메라 및 화면 공유 설정
             var publisher = OV.initPublisher("my-video", {
               videoSource: "screen",
-              resolution: "1280x720",
+              // videoDimensions: '{"width":890, "height":493}',
               // 카메라와 화면 공유 설정
             });
             mainstreamer = publisher;
