@@ -27,7 +27,7 @@ import Openviduopen from "@/views/openvidu/Openviduopen.vue";
 import OpenviduView from "@/views/openvidu/OpenviduView.vue";
 import DashboardTest from "@/views/studio/DashboardTest.vue";
 import OpenViduLogic1 from "@/views/openvidu/OpenViduLogic1.vue";
-import OpenViduLogic2 from "@/views/openvidu/OpenViduLogic2.vue";
+import Openviduchat from "@/views/openvidu/Openviduchat.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -91,9 +91,9 @@ const router = createRouter({
         {
           path: "privacy",
           name: "Privacy",
-          component: Privacy
-        }
-      ]
+          component: Privacy,
+        },
+      ],
     },
     {
       path: "/studio/clip",
@@ -176,21 +176,20 @@ const router = createRouter({
       component: Openviduopen,
     },
     {
+      path: "/openviduchat",
+      name: "Openviduchat",
+      component: Openviduchat,
+    },
+    {
       path: "/dashboardtest",
       name: "DashboardTest",
       component: DashboardTest,
     },
     {
-      path: '/logic1',
+      path: "/logic1",
       name: "OpenviduLogic1",
       component: OpenViduLogic1,
     },
-    {
-      path: '/logic2',
-      name: "OpenviduLogic2",
-      component: OpenViduLogic2,
-    }
-
   ],
 });
 
