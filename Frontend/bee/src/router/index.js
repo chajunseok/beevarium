@@ -27,6 +27,7 @@ import OpenVIdutest from "@/views/openvidu/OpenVIdutest.vue";
 import Openviduopen from "@/views/openvidu/Openviduopen.vue";
 import OpenviduView from "@/views/openvidu/OpenviduView.vue";
 import OpenViduLogic1 from "@/views/openvidu/OpenViduLogic1.vue";
+import OpenViduLogic2 from "@/views/openvidu/OpenViduLogic2.vue";
 import Openviduchat from "@/views/openvidu/Openviduchat.vue";
 
 const router = createRouter({
@@ -192,6 +193,11 @@ const router = createRouter({
       path: "/logic1",
       name: "OpenviduLogic1",
       component: OpenViduLogic1,
+    },
+    {
+      path: "/logic2",
+      name: "OpenviduLogic2",
+      component: OpenViduLogic2,
     },
   ],
 });

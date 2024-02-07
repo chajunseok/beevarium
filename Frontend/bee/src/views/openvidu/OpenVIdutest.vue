@@ -5,38 +5,38 @@ var session; //전역 스코프에서 선언
 var OV = new OpenVidu();
 var mainstreamer;
 
-const API_SERVER_URL = import.meta.env.VITE_API_SERVER_URL;
+const API_SERVER_URL = import.meta.env.VITE_OPENVIDU_API_URL;
 let sessionId = "";
 let connectId = "";
 
 const openSession = async () => {
   try {
     // 성공적으로 통신시 클라이언트측 세션 초기화
-    session = OV.initSession()
-    console.log(session)
-    const response = await axios.post(`${API_SERVER_URL}openvidu/api/sessions`, {
-      "mediaMode": "ROUTED",
-      "recordingMode": "MANUAL",
-      "customSessionId": "CUSTOM_SESSION_ID",
-      "forcedVideoCodec": "VP8",
-      "allowTranscoding": false,
-      "defaultRecordingProperties": {
-          "name": "MyRecording",
-          "hasAudio": true,
-          "hasVideo": true,
-          "outputMode": "COMPOSED",
-          "recordingLayout": "BEST_FIT",
-          "resolution": "1280x720",
-          "frameRate": 25,
-        "shmSize": 536870912,
-        "mediaNode": "media_media.beevarium.site"
-       },
-    })
-    console.log('세션 생성됨', response.data)
-    sessionId = response.data
-  
-    //세션 열기 성공시, 자동으로 publisher로 연결
-    await connectSession("PUBLISHER");
+    session = OV.initSession();
+    console.log(session);
+    const response = await axios.post(
+      `${API_SERVER_URL}openvidu/api/sessions`,
+      {
+        mediaMode: "ROUTED",
+        recordingMode: "MANUAL",
+        customSessionId: "CUSTOM_SESSION_ID",
+        forcedVideoCodec: "VP8",
+        allowTranscoding: false,
+        defaultRecordingProperties: {
+          name: "MyRecording",
+          hasAudio: true,
+          hasVideo: true,
+          outputMode: "COMPOSED",
+          recordingLayout: "BEST_FIT",
+          resolution: "1280x720",
+          frameRate: 25,
+          shmSize: 536870912,
+          mediaNode: "media_openvidu.beevarium.site",
+        },
+      }
+    );
+    console.log("세션 생성됨", response.data);
+    sessionId = response.data;
 
     //세션 열기 성공시, 자동으로 publisher로 연결
     await connectSession("PUBLISHER");
@@ -51,12 +51,12 @@ const closeSession = async () => {
       //stream publish 취소하기
       session.unpublish(mainstreamer);
       // 서버에서 세션 delete 요청 보내기
-      await axios.delete(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection/${connectId}`)
-      console.log("세션 연결 끊김")
+      await axios.delete(
+        `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection/${connectId}`
+      );
+      console.log("세션 연결 끊김");
     }
-  }
- 
-  catch (error) {
+  } catch (error) {
     console.error("Error", error);
   }
 };
@@ -65,7 +65,7 @@ const closeSession = async () => {
 const connectSession = async (role = "PUBLISHER") => {
   try {
     const response = await axios.post(
-      `${API_SERVER_URL}/openvidu/api/sessions/${sessionId}/connection`,
+      `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection`,
       {
         type: "WEBRTC",
         data: "My Server Data",
@@ -93,7 +93,8 @@ const connectSession = async (role = "PUBLISHER") => {
           videoSource: "screen", //카메라 X, 화면 공유 설정
         });
         mainstreamer = publisher;
-        session.publish(publisher)
+        session
+          .publish(publisher)
           .then(() => {
             console.log("화면 공유 스트림 발생 성공");
             //여기서 전역변수에 저장
@@ -106,7 +107,7 @@ const connectSession = async (role = "PUBLISHER") => {
         console.error("클라이언트측 세션 연결 실패", error);
       });
   } catch (error) {
-    console.error("Error", error);
+    console.error("세션 연결 실패", error);
   }
 };
 // 세션 연결 - 방송 참여자
@@ -157,10 +158,8 @@ const subscribeStream = async (role = "SUBSCRIBER") => {
 //세션 연결 끊기 (시청자 )
 const disconnectSession = async () => {
   try {
-    session.disconnect()
-  }
- 
-  catch (error) {
+    session.disconnect();
+  } catch (error) {
     console.error("Error", error);
   }
 };
@@ -175,7 +174,7 @@ const connectionList = async () => {
     console.error("Error", error);
   }
 };
-
+//연결된 모든 세션 데이터
 const retrieveAll = async () => {
   try {
     const response = await axios.get(`${API_SERVER_URL}openvidu/api/sessions`);
@@ -184,6 +183,36 @@ const retrieveAll = async () => {
     console.error("Error", error);
   }
 };
+// 녹화 시작
+const startRecording = async () => {
+  try {
+    const response = await axios.post(
+      `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/recordings/start`,
+      {
+        // "id": "ses_YnDaGYNcd7",
+        object: "recording",
+        name: "MyRecording",
+        outputMode: "COMPOSED",
+        hasAudio: true,
+        hasVideo: true,
+        resolution: "1280x720",
+        frameRate: 25,
+        sessionId: "CUSTOM_SESSION_ID",
+        mediaNode: "media_media.beevarium.site",
+        size: 303072692,
+        duration: 108000.234,
+        url: `${API_SERVER_URL}openvidu/recordings/CUSTOM_SESSION_ID/MyRecording.mp4`,
+        status: "ready",
+      }
+    );
+    console.log(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+//녹화 종료
+const stopRecording = async () => {};
 
 const disablevideo = () => {
   const videoEnabled = !mainstreamer.stream.videoActive;
