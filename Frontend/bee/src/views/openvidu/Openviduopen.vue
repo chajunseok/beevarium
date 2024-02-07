@@ -1,9 +1,13 @@
 <script setup>
 import axios from "axios";
 import { OpenVidu } from "openvidu-browser";
+import { ref } from "vue";
+
 var session;
 var OV = new OpenVidu();
 var mainstreamer;
+
+axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const API_SERVER_URL = import.meta.env.VITE_API_SERVER_URL;
 let sessionId = "";
@@ -73,7 +77,7 @@ const connectSession = async (role = "PUBLISHER") => {
 
         // 퍼블리셔의 카메라 및 화면 공유 설정
         var publisher = OV.initPublisher("my-video", {
-          videoSource: ["camera", "screen"], // 카메라와 화면 공유 설정
+          videoSource: "screen", // 카메라와 화면 공유 설정
         });
         mainstreamer = publisher;
 
@@ -134,8 +138,32 @@ const connectionList = async () => {
 };
 // 세션 연결 - 방송 참여자
 // ssesionID = opensession 하면 전역변수로 생김
-const subscribeStream = async (role = "SUBSCRIBER") => {
-  let subscriber;
+const subscribeToSession = async () => {
+  try {
+    // 세션 생성
+    session.value = OV.initSession();
+
+    // 세션 이벤트 핸들러 추가
+    session.value.on("streamCreated", (event) => {
+      const subscriber = session.value.subscribe(
+        event.stream,
+        "subscriber-video"
+      );
+      console.log("새로운 스트림 구독 시작");
+    });
+
+    // 세션에 연결할 토큰 가져오기
+    const token = await getToken();
+
+    // 세션에 연결
+    await session.value.connect(token);
+    console.log("Subscriber connected successfully");
+  } catch (error) {
+    console.error("Subscriber connection failed", error);
+  }
+};
+
+const getToken = async () => {
   try {
     const response = await axios.post(
       `${API_SERVER_URL}openvidu/api/sessions/CUSTOM_SESSION_ID2/connection`,
@@ -153,27 +181,10 @@ const subscribeStream = async (role = "SUBSCRIBER") => {
         },
       }
     );
-    console.log(response.data);
-    console.log(connectId);
-    //커넥트 아이디, 토큰 - 내 연결에서 받아와야 함. sessionID = 퍼블리셔갸 열어놓은 sessionID 글로벌 스코프로 선언되어 있음.
-    connectId = response.data.connectionId;
-    // console.log("세션 connection", response.data)
-    const token = response.data.connectionToken;
-    session.on("streamCreated", (event) => {
-      subscriber = session.subscribe(event.stream, "subscriber-video");
-    });
-    session
-      .connect(token)
-      .then(() => {
-        console.log(response.data);
-        console.log(connectId);
-        console.log("새션 연결 성공, subscriber 연결 성공");
-      })
-      .catch((error) => {
-        console.error("subscriber 연결 실패", error);
-      });
+    return response.data.connectionToken;
   } catch (error) {
-    console.error("세션 연결 실패", error);
+    console.error("Failed to get token", error);
+    throw error; // 예외를 다시 던지고 호출하는 쪽에서 처리할 수 있도록 합니다.
   }
 };
 
@@ -220,8 +231,8 @@ const disablevideo = () => {
       <button @click="retrieveAll">모든 세션 확인</button>
       <!--세션에 연결된 connection 확인하기 위한 get 요청 -->
       <button @click="connectionList">연결된 커넥션 확인</button>
-      <button @click="startRecording">녹화 시작</button>
-      <button @click="subscribeStream">구독자로 세션 연결</button>
+      <!-- <button @click="startRecording">녹화 시작</button> -->
+      <button @click="subscribeToSession">구독자로 세션 연결</button>
     </div>
   </div>
 </template>
