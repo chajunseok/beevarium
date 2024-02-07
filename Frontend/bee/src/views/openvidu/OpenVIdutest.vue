@@ -16,7 +16,7 @@ const openSession = async () => {
     console.log(session)
     const response = await axios.post(`${API_SERVER_URL}openvidu/api/sessions`, {
       "mediaMode": "ROUTED",
-      "recordingMode": "MANUAL",
+      "recordingMode": "ALWAYS",
       "customSessionId": "CUSTOM_SESSION_ID",
       "forcedVideoCodec": "VP8",
       "allowTranscoding": false,
