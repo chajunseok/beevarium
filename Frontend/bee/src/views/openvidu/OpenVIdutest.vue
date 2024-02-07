@@ -29,7 +29,7 @@ const openSession = async () => {
           "resolution": "1280x720",
           "frameRate": 25,
         "shmSize": 536870912,
-        "mediaNode": "media_media.beevarium.site"
+        "mediaNode": "media_openvidu.beevarium.site"
        },
     })
     console.log('세션 생성됨', response.data)
@@ -38,8 +38,6 @@ const openSession = async () => {
     //세션 열기 성공시, 자동으로 publisher로 연결
     await connectSession("PUBLISHER");
 
-    //세션 열기 성공시, 자동으로 publisher로 연결
-    await connectSession("PUBLISHER");
   } catch (error) {
     console.error("Error", error);
   }
@@ -64,29 +62,25 @@ const closeSession = async () => {
 // 세션 연결 (connection) - 방송 만든사람
 const connectSession = async (role = "PUBLISHER") => {
   try {
-    const response = await axios.post(
-      `${API_SERVER_URL}/openvidu/api/sessions/${sessionId}/connection`,
-      {
-        type: "WEBRTC",
-        data: "My Server Data",
-        record: true,
-        role: "PUBLISHER",
-        kurentoOptions: {
-          videoMaxRecvBandwidth: 1000,
-          videoMinRecvBandwidth: 300,
-          videoMaxSendBandwidth: 1000,
-          videoMinSendBandwidth: 300,
-          allowedFilters: ["GStreamerFilter", "ZBarFilter"],
-        },
-      }
-    );
+    const response = await axios.post(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection`,{
+        "type": "WEBRTC",
+        "data": "My Server Data",
+        "record": true,
+        "role": "PUBLISHER",
+        "kurentoOptions": {
+          "videoMaxRecvBandwidth": 1000,
+          "videoMinRecvBandwidth": 300,
+          "videoMaxSendBandwidth": 1000,
+          "videoMinSendBandwidth": 300,
+          "allowedFilters": ["GStreamerFilter", "ZBarFilter"],
+        }
+      })
 
     connectId = response.data.connectionId;
     console.log("세션 connection", response.data);
     const token = response.data.connectionToken;
     //여기서 client 단 세션 join (with token)
-    session
-      .connect(token)
+    session.connect(token)
       .then(() => {
         console.log("클라이언트측 세션 연결 성공");
         var publisher = OV.initPublisher("my-video", {
@@ -106,7 +100,7 @@ const connectSession = async (role = "PUBLISHER") => {
         console.error("클라이언트측 세션 연결 실패", error);
       });
   } catch (error) {
-    console.error("Error", error);
+    console.error("세션 연결 실패", error);
   }
 };
 // 세션 연결 - 방송 참여자
@@ -175,7 +169,7 @@ const connectionList = async () => {
     console.error("Error", error);
   }
 };
-
+//연결된 모든 세션 데이터 
 const retrieveAll = async () => {
   try {
     const response = await axios.get(`${API_SERVER_URL}openvidu/api/sessions`);
@@ -184,6 +178,36 @@ const retrieveAll = async () => {
     console.error("Error", error);
   }
 };
+// 녹화 시작
+const startRecording = async () => {
+  try {
+    const response = await axios.post(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}/recordings/start`, {
+      // "id": "ses_YnDaGYNcd7",
+    "object": "recording",
+    "name": "MyRecording",
+    "outputMode": "COMPOSED",
+    "hasAudio": true,
+    "hasVideo": true,
+    "resolution": "1280x720",
+    "frameRate": 25,
+    "sessionId": "CUSTOM_SESSION_ID",
+    "mediaNode": "media_media.beevarium.site",
+    "size": 303072692,
+    "duration": 108000.234,
+    "url": `${API_SERVER_URL}openvidu/recordings/CUSTOM_SESSION_ID/MyRecording.mp4`,
+    "status": "ready"
+    })
+    console.log(response.data)
+  }
+  catch (error) {
+    console.log(error)
+  }
+}
+
+//녹화 종료
+const stopRecording = async () => {
+  
+}
 
 const disablevideo = () => {
   const videoEnabled = !mainstreamer.stream.videoActive;

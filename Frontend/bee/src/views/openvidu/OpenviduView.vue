@@ -39,7 +39,7 @@ const subscribeToSession = async () => {
 const getToken = async () => {
   try {
     const response = await axios.post(
-      `${API_SERVER_URL}openvidu/api/sessions/CUSTOM_SESSION_ID2/connection`,
+      `${API_SERVER_URL}openvidu/api/sessions/CUSTOM_SESSION_ID/connection`,
       {
         type: "WEBRTC",
         data: "My Server Data",
