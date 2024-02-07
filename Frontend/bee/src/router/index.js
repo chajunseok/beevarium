@@ -26,7 +26,9 @@ import OpenVIdutest from "@/views/openvidu/OpenVIdutest.vue";
 import Openviduopen from "@/views/openvidu/Openviduopen.vue";
 import OpenviduView from "@/views/openvidu/OpenviduView.vue";
 import DashboardTest from "@/views/studio/DashboardTest.vue";
-import OpenViduLogic from "@/views/openvidu/OpenViduLogic1.vue";
+import OpenViduLogic1 from "@/views/openvidu/OpenViduLogic1.vue";
+import Openviduchat from "@/views/openvidu/Openviduchat.vue";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -175,8 +177,8 @@ const router = createRouter({
     },
     {
       path: "/openviduchat",
-      name: "Openviduochat",
-      component: Openviduochat,
+      name: "Openviduchat",
+      component: Openviduchat,
     },
     {
       path: "/dashboardtest",
@@ -188,7 +190,6 @@ const router = createRouter({
       name: "OpenviduLogic1",
       component: OpenViduLogic1,
     },
-
   ],
 });
 
