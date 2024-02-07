@@ -77,7 +77,7 @@ const connectSession = async (role = "PUBLISHER") => {
 
         // 퍼블리셔의 카메라 및 화면 공유 설정
         var publisher = OV.initPublisher("my-video", {
-          videoSource: "screen", // 카메라와 화면 공유 설정
+          videoSource: ["screen", "camera"], // 카메라와 화면 공유 설정
         });
         mainstreamer = publisher;
 
