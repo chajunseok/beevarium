@@ -36,7 +36,7 @@ const openSession = async () => {
     sessionId = response.data
   
     //세션 열기 성공시, 자동으로 publisher로 연결
-    await connectSession("PUBLISHER")
+    await connectSession("PUBLISHER");
 
     //세션 열기 성공시, 자동으로 publisher로 연결
     await connectSession("PUBLISHER");
@@ -56,7 +56,7 @@ const closeSession = async () => {
     }
   }
  
-    catch (error) {
+  catch (error) {
     console.error("Error", error);
   }
 };
@@ -65,7 +65,7 @@ const closeSession = async () => {
 const connectSession = async (role = "PUBLISHER") => {
   try {
     const response = await axios.post(
-      `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/connection`,
+      `${API_SERVER_URL}/openvidu/api/sessions/${sessionId}/connection`,
       {
         type: "WEBRTC",
         data: "My Server Data",
@@ -128,20 +128,22 @@ const subscribeStream = async (role = "SUBSCRIBER") => {
           videoMinSendBandwidth: 300,
           allowedFilters: ["GStreamerFilter", "ZBarFilter"],
         },
-      })
+      }
+    );
 
     //커넥트 아이디, 토큰 - 내 연결에서 받아와야 함. sessionID = 퍼블리셔갸 열어놓은 sessionID 글로벌 스코프로 선언되어 있음.
     connectId = response.data.connectionId;
     // console.log("세션 connection", response.data)
-    const token = response.data.connectionToken
-    session.on('streamCreated', (event) => {
-          subscriber = session.subscribe(event.stream,"subscriber-video")
-    })
-    // 세션 종료시 
-    session.on('sessionDisconnected', (event) => {
-      console.log("세션이 종료되었습니다.")
-    })
-    session.connect(token)
+    const token = response.data.connectionToken;
+    session.on("streamCreated", (event) => {
+      subscriber = session.subscribe(event.stream, "subscriber-video");
+    });
+    // 세션 종료시
+    session.on("sessionDisconnected", (event) => {
+      console.log("세션이 종료되었습니다.");
+    });
+    session
+      .connect(token)
       .then(() => {
         console.log("새션 연결 성공, subscriber 연결 성공");
       })
@@ -156,7 +158,7 @@ const subscribeStream = async (role = "SUBSCRIBER") => {
 const disconnectSession = async () => {
   try {
     session.disconnect()
-    }
+  }
  
   catch (error) {
     console.error("Error", error);
@@ -182,20 +184,11 @@ const retrieveAll = async () => {
     console.error("Error", error);
   }
 };
-// 녹화 시작
-// const startRecording = async () => {
-//   try {
-//     const response = await axios.post(`${API_SERVER_URL}openvidu/api/recordings/start`, {
 
-//     })
-
-//   }
-// }
 const disablevideo = () => {
-  const videoEnabled = !mainstreamer.stream.videoActive
-  mainstreamer.publishVideo(videoEnabled)
-}
-
+  const videoEnabled = !mainstreamer.stream.videoActive;
+  mainstreamer.publishVideo(videoEnabled);
+};
 </script>
 
 <template>

@@ -2,13 +2,11 @@
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/user";
-import { useSidebarStore } from "@/stores/sidebar";
 import { storeToRefs } from "pinia";
-import MypageModal from "@/views/streaming/components/MypageModal.vue";
+import MypageModal from "./MypageModal.vue";
 
 const authStore = useAuthStore();
 const { isLoggedIn } = storeToRefs(authStore);
-const sidebarStore = useSidebarStore();
 const router = useRouter();
 const searchQuery = ref("");
 const mypageModActive = ref(false);
@@ -20,42 +18,33 @@ const onSearch = (event) => {
   }
 };
 
-const expand = () => {
-  sidebarStore.expand();
-};
-
 const logout = () => {
   authStore.logout();
-  mypageModActive.value = !mypageModActive.value;
   router.push("/");
 };
 
-const isScrolled = ref(false);
-const checkScrolled = () => {
-  isScrolled.value = window.scrollY > 0;
-};
-onMounted(() => {
-  window.addEventListener("scroll", checkScrolled);
-});
-onBeforeUnmount(() => {
-  window.removeEventListener("scroll", checkScrolled);
-});
-
+const modalRef = ref(null);
+// 모달 열기, 닫기 토글
 const toggleMpMod = () => {
+  event.stopPropagation();
   mypageModActive.value = !mypageModActive.value;
 };
+const handleOutsideClick = (event) => {
+  if (mypageModActive.value && !modalRef.value.contains(event.target)) {
+    mypageModActive.value = false;
+  }
+};
+onMounted(() => {
+  document.addEventListener("click", handleOutsideClick);
+});
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleOutsideClick);
+});
 </script>
 
 <template>
   <div class="navbar-container">
     <div style="display: flex">
-      <div class="hamburger-menu-button" @click="expand">
-        <img
-          class="hamburger-menu"
-          src="../../../assets/img/navbar/hamburger-menu.png"
-          alt=""
-        />
-      </div>
       <div class="navbar-logo-box">
         <router-link :to="{ name: 'Home' }">
           <img
@@ -92,7 +81,7 @@ const toggleMpMod = () => {
           font-size: 14px;
           color: #e6e5ea;
           font-weight: 600;
-          margin-right: 30px;
+          margin-right: 24px;
         "
       >
         <div v-if="isLoggedIn" class="broadcast-button">
@@ -104,27 +93,17 @@ const toggleMpMod = () => {
           방송하기
         </div>
       </router-link>
-      <div v-if="isLoggedIn" style="width: 52px; margin-right: 30px;">
-        <router-link
-          :to="{ name: 'StudioMain' }"
-          style="
-            width: 52px;
-            height: 17px;
-            color: #e6e5ea;
-            font-size: 14px;
-            font-weight: 600;
-          "
-          >나의 채널</router-link
-        >
-      </div>
-      <div v-if="isLoggedIn" class="profile-button" @click="toggleMpMod">
+      <div v-if="isLoggedIn" class="profile-button" @click="toggleMpMod($event)">
         <img class="profile" src="../../../assets/img/profile.png" alt="" />
       </div>
       <div v-if="!isLoggedIn" class="move-to-login">
         <router-link :to="{ name: 'Login' }" style="color: #e6e5ea"
-          >로그인</router-link
+        >로그인</router-link
         >
       </div>
+    </div>
+    <div v-if="mypageModActive" style="position: absolute; top: 60px; right: 139.5px;" ref="modalRef">
+      <MypageModal :mypage-mod-active="mypageModActive" @log-out="logout" @toggle-mp-mod="toggleMpMod"/>
     </div>
   </div>
 </template>
@@ -137,26 +116,13 @@ const toggleMpMod = () => {
   align-items: center;
   width: 100%;
   height: 60px;
-  z-index: 2;
+  z-index: 100;
   background-color: #121212;
-}
-.hamburger-menu-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 18px;
-  height: 14px;
-  margin: 24px;
-  cursor: pointer;
-}
-.hamburger-menu {
-  width: 18px;
-  height: 14px;
 }
 .navbar-logo-box {
   width: 162px;
   height: 38px;
-  margin: 11px 0;
+  margin-left: 24px;
 }
 .searchbar-box {
   display: flex;
@@ -190,7 +156,7 @@ const toggleMpMod = () => {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  width: 269px;
+  width: 217px;
   height: 60px;
 }
 .broadcast-button {
@@ -209,9 +175,11 @@ const toggleMpMod = () => {
   margin-right: 6px;
 }
 .profile-button {
-  width: 55.5px;
+  position: relative;
+  width: 36px;
   height: 36px;
   border-radius: 10rem;
+  margin-right: 19.5px;
   cursor: pointer;
 }
 .profile {
