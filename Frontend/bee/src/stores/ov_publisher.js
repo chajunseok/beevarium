@@ -84,6 +84,16 @@ export const useOVPStore = defineStore(
               // videoDimensions: '{"width":890, "height":493}',
               // 카메라와 화면 공유 설정
             });
+
+            publisher.on("videoElementCreated", (event) => {
+              // 비디오 엘리먼트에 접근
+              var videoElement = event.element;
+
+              // 비디오 엘리먼트의 크기를 고정된 값으로 설정
+              videoElement.style.width = "890px"; // 너비를 640픽셀로 설정
+              videoElement.style.height = "493px"; // 높이를 480픽셀로 설정
+            });
+
             mainstreamer = publisher;
 
             session

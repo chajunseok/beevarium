@@ -29,6 +29,14 @@ export const useOVSStore = defineStore(
             event.stream,
             "subscriber-video"
           );
+          subscriber.on("videoElementCreated", (event) => {
+            // 비디오 엘리먼트에 접근
+            var videoElement = event.element;
+
+            // 비디오 엘리먼트의 크기를 고정된 값으로 설정
+            videoElement.style.width = "1280px"; // 너비를 640픽셀로 설정
+            videoElement.style.height = "720px"; // 높이를 480픽셀로 설정
+          });
           console.log("새로운 스트림 구독 시작");
         });
 

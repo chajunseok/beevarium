@@ -260,7 +260,11 @@ button:hover {
   background-color: #000000;
   margin-bottom: 24px;
 }
-
+#my-video video {
+  max-width: 890px !important;
+  max-height: 493px !important;
+  object-fit: contain;
+}
 .stream-setting {
   width: 100%;
   height: 30%;
