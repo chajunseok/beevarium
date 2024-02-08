@@ -126,7 +126,38 @@ export const useOVPStore = defineStore(
       }
     };
 
-    return { openSession, connectSession, closeSession, sessionId, connectId };
+    const sendMessage = async (message) => {
+      try {
+        // 모든 연결에게 메시지 브로드캐스트
+        await session.signal({
+          data: message,
+          to: [], // 모든 연결에게 브로드캐스트
+          type: "my-chat",
+        });
+        console.log("Message successfully sent");
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
+    };
+
+    // 채팅 메시지 수신하기
+    const receiveMessage = () => {
+      session.on("signal:my-chat", (event) => {
+        console.log("Received message:", event.data); // 수신된 메시지 출력
+        console.log("Sender:", event.from); // 메시지 보낸 사용자 정보
+        console.log("Message type:", event.type); // 메시지 타입 출력
+      });
+    };
+
+    return {
+      openSession,
+      connectSession,
+      closeSession,
+      sendMessage,
+      receiveMessage,
+      sessionId,
+      connectId,
+    };
   },
   {
     persist: true,
