@@ -20,7 +20,7 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
-import { OT } from "@opentok/client";
+// import { OT } from "@opentok/clien;t"
 
 const API_SERVER_URL = import.meta.env.VITE_API_SERVER_URL;
 const sessionId = "chat-panel-directive-example";
