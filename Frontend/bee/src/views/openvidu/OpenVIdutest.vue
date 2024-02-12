@@ -116,6 +116,7 @@ const connectSession = async (role = "PUBLISHER") => {
             //   console.log("Current volume:", event.value.newValue);
             //   // 여기서 event.value.newValue는 오디오 볼륨의 변화를 나타냅니다.
             //   // 볼륨이 0보다 크면 오디오가 입력되고 있음을 의미합니다.
+            // DB 스케일일 경우 마이너스로 나옴 
             // });
             // STT 구독 성공여부
             session
