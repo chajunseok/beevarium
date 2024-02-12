@@ -9,6 +9,30 @@ let sessionId = "";
 let connectId = "";
 let publisher = "";
 
+async function getAudioInputDevices() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const audioInputDevices = devices.filter(
+      (device) => device.kind === "audioinput"
+    );
+    console.log("Available audio input devices:", audioInputDevices);
+    audioInputDevices.forEach((device, index) => {
+      console.log(
+        `Mic ${index}: ${device.label}, Device ID: ${device.deviceId}`
+      );
+    });
+    // 선택 또는 자동 선택 로직을 여기에 구현할 수 있습니다.
+    // 예: audioInputDevices[0].deviceId를 사용자의 audioSource로 설정할 수 있습니다.
+    return audioInputDevices;
+  } catch (error) {
+    console.error("Error getting audio input devices:", error);
+    return [];
+  }
+}
+
+// 이 함수를 호출하여 오디오 입력 장치 목록을 가져오고 콘솔에 출력
+getAudioInputDevices();
+
 const openSession = async () => {
   try {
     // 성공적으로 통신시 클라이언트측 세션 초기화
@@ -94,7 +118,8 @@ const connectSession = async (role = "PUBLISHER") => {
         console.log("클라이언트측 세션 연결 성공");
         publisher = OV.initPublisher("my-video", {
           videoSource: "screen", //카메라 X, 화면 공유 설정
-          audioSource: true, // 마이크 오디오 사용
+          audioSource:
+            "6b5f46efba42a0e41745111c21dfeecb1bd09f0c271f97b23caeb8ee24ac3ab6", // 마이크 오디오 사용
           publishAudio: true, // 오디오 발행 활성화
           publishVideo: true, // 비디오 발행 활성화
         });
@@ -119,6 +144,7 @@ const connectSession = async (role = "PUBLISHER") => {
             // DB 스케일일 경우 마이너스로 나옴 
             // });
             // STT 구독 성공여부
+
             session
               .subscribeToSpeechToText(publisher.stream, "ko-KR")
               .then(() => {
@@ -127,15 +153,16 @@ const connectSession = async (role = "PUBLISHER") => {
                 session.on("speechToTextMessage", (event) => {
                   console.log("음성 변환 인식됨");
                   console.log(event);
-                  axios.post(`https://2778-112-166-150-139.ngrok-free.app`, {
-                      prompt: event.text,
-                    })
-                    .then((response) => {
-                      console.log(response);
-                    })
-                    .catch((error) => {
-                      console.error("변환 실패", error);
-                    });
+                  // axios
+                  //   .post(`https://2778-112-166-150-139.ngrok-free.app`, {
+                  //     prompt: event.text,
+                  //   })
+                  //   .then((response) => {
+                  //     console.log(response);
+                  //   })
+                  //   .catch((error) => {
+                  //     console.error("변환 실패", error);
+                  //   });
                 });
               })
               .catch((error) => {
@@ -276,6 +303,7 @@ const startRecording = async () => {
       <!--세션에 연결된 connection 확인하기 위한 get 요청 -->
       <button @click="connectionList">연결된 커넥션 확인</button>
       <button @click="startRecording">녹화 시작</button>
+      <button @click="getAudioInputDevices">장치 확인</button>
     </div>
   </div>
 </template>
