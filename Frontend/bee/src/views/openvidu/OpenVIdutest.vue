@@ -9,6 +9,7 @@ let sessionId = "";
 let connectId = "";
 let publisher = "";
 let recordingId = ''; 
+let recordingObj = '';
 
 async function getAudioInputDevices() {
   try {
@@ -168,11 +169,6 @@ const connectSession = async (role = "PUBLISHER") => {
               .catch((error) => {
                 console.error("Speech-to-Text 구독 실패:", error);
               });
-
-            //  // 녹화 테스트 코드
-            // const response2 = axios.post(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}/recordings/MyRecording`)
-            // console.log(response2.data)
-            //여기서 전역변수에 저장
           })
           .catch((error) => {
             console.error("화면 공유 스트림 발행 실패", error);
@@ -254,24 +250,7 @@ const retrieveAll = async () => {
 const startRecording = async () => {
   try {
     const recordingResp = await axios.post(
-      `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/recordings/MyRecording`,
-      // {
-      //   object: "recording",
-      //   name: "MyRecording",
-      //   outputMode: "INDIVIDUAL",
-      //   hasAudio: true,
-      //   hasVideo: true,
-      //   resolution: "1280x720",
-      //   frameRate: 25,
-      //   sessionId: "CUSTOM_SESSION_ID",
-      //   mediaNode: "media_media.beevarium.site",
-      //   size: 303072692,
-      //   duration: 108000.234,
-      //   url: `${API_SERVER_URL}openvidu/recordings/CUSTOM_SESSION_ID/MyRecording.mp4`,
-      //   status: "ready",
-      //   recordingLayout: "BEST_FIT",
-      // }
-    );
+      `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/recordings/MyRecording`);
     console.log(recordingResp.data);
     console.log(recordingResp.data.id)
     recordingId = recordingResp.data.id
@@ -281,14 +260,26 @@ const startRecording = async () => {
   }
 };
 
+//녹화 중지 
 const stopRecording = async () => {
   try {
-    await axios.post(`${API_SERVER_URL}openvidu/api/recordings/${recordingId}`)
+    await axios.delete(`${API_SERVER_URL}openvidu/api/recordings/${recordingId}`)
     console.log("녹화 중지 성공")
 
   }
   catch (error) {
     console.log( error,"녹화 중지 실패")
+  }
+}
+
+//녹화 객체 반환
+const retrieveRecord = async () => {
+  try {
+    recordingObj = await axios.get(`${API_SERVER_URL}openvidu/api/recordings/${recordingId}`)
+    console.log(recordingObj.data.url)
+  }
+  catch (error) {
+    console.error(error,"녹화 객체 반환 실패")
   }
 }
 </script>
@@ -317,6 +308,7 @@ const stopRecording = async () => {
       <button @click="connectionList">연결된 커넥션 확인</button>
       <button @click="startRecording">녹화 시작</button>
       <button @click="stopRecording">녹화 정지</button>
+      <button @click="retrieveRecord">녹화 파일 확인</button>
       <button @click="getAudioInputDevices">장치 확인</button>
     </div>
   </div>
