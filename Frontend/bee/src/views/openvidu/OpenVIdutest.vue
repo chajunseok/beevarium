@@ -8,6 +8,7 @@ const API_SERVER_URL = import.meta.env.VITE_API_SERVER_URL;
 let sessionId = "";
 let connectId = "";
 let publisher = "";
+let recordingId = ''; 
 
 async function getAudioInputDevices() {
   try {
@@ -57,7 +58,7 @@ const openSession = async () => {
         //     "shmSize": 536870912,
         //     "mediaNode": "media_openvidu.beevarium.site"
         //  },
-        recordingMode: "ALWAYS", //녹화 시점 선택
+        recordingMode: "MANUAL", //녹화 시점 선택
         customSessionId: "CUSTOM_SESSION_ID_TEST",
         allowTranscoding: true,
         mediaNode: "media_media.beevarium.site",
@@ -119,7 +120,7 @@ const connectSession = async (role = "PUBLISHER") => {
         publisher = OV.initPublisher("my-video", {
           videoSource: "screen", //카메라 X, 화면 공유 설정
           audioSource:
-            "6b5f46efba42a0e41745111c21dfeecb1bd09f0c271f97b23caeb8ee24ac3ab6", // 마이크 오디오 사용
+            "11867f37c8384ece8c3be983004b76c1908941732271d9e2abcc5bbfcc83e008", // 마이크 오디오 사용
           publishAudio: true, // 오디오 발행 활성화
           publishVideo: true, // 비디오 발행 활성화
         });
@@ -145,8 +146,7 @@ const connectSession = async (role = "PUBLISHER") => {
             // });
             // STT 구독 성공여부
 
-            session
-              .subscribeToSpeechToText(publisher.stream, "ko-KR")
+            session.subscribeToSpeechToText(publisher.stream, "ko-KR")
               .then(() => {
                 console.log("Speech-to-Text 구독 성공");
                 // STT 구독이 성공적이라면
@@ -253,31 +253,44 @@ const retrieveAll = async () => {
 // 녹화 시작
 const startRecording = async () => {
   try {
-    const response = await axios.post(
+    const recordingResp = await axios.post(
       `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/recordings/MyRecording`,
-      {
-        // "id": "ses_YnDaGYNcd7",
-        object: "recording",
-        name: "MyRecording",
-        outputMode: "INDIVIDUAL",
-        hasAudio: true,
-        hasVideo: true,
-        resolution: "1280x720",
-        frameRate: 25,
-        sessionId: "CUSTOM_SESSION_ID",
-        mediaNode: "media_media.beevarium.site",
-        size: 303072692,
-        duration: 108000.234,
-        url: `${API_SERVER_URL}openvidu/recordings/CUSTOM_SESSION_ID/MyRecording.mp4`,
-        status: "ready",
-        recordingLayout: "BEST_FIT",
-      }
+      // {
+      //   object: "recording",
+      //   name: "MyRecording",
+      //   outputMode: "INDIVIDUAL",
+      //   hasAudio: true,
+      //   hasVideo: true,
+      //   resolution: "1280x720",
+      //   frameRate: 25,
+      //   sessionId: "CUSTOM_SESSION_ID",
+      //   mediaNode: "media_media.beevarium.site",
+      //   size: 303072692,
+      //   duration: 108000.234,
+      //   url: `${API_SERVER_URL}openvidu/recordings/CUSTOM_SESSION_ID/MyRecording.mp4`,
+      //   status: "ready",
+      //   recordingLayout: "BEST_FIT",
+      // }
     );
-    console.log(response.data);
+    console.log(recordingResp.data);
+    console.log(recordingResp.data.id)
+    recordingId = recordingResp.data.id
+    console.log("녹화 시작")
   } catch (error) {
-    console.log(error);
+    console.log("녹화 시작 실패" ,error);
   }
 };
+
+const stopRecording = async () => {
+  try {
+    await axios.post(`${API_SERVER_URL}openvidu/api/recordings/${recordingId}`)
+    console.log("녹화 중지 성공")
+
+  }
+  catch (error) {
+    console.log( error,"녹화 중지 실패")
+  }
+}
 </script>
 
 <template>
@@ -303,6 +316,7 @@ const startRecording = async () => {
       <!--세션에 연결된 connection 확인하기 위한 get 요청 -->
       <button @click="connectionList">연결된 커넥션 확인</button>
       <button @click="startRecording">녹화 시작</button>
+      <button @click="stopRecording">녹화 정지</button>
       <button @click="getAudioInputDevices">장치 확인</button>
     </div>
   </div>
