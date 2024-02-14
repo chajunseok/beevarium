@@ -8,6 +8,10 @@ const API_SERVER_URL = import.meta.env.VITE_API_SERVER_URL;
 let sessionId = "";
 let connectId = "";
 let publisher = "";
+let recordingId = ''; 
+let recordingObj = '';
+
+let publisherCam ='';
 
 async function getAudioInputDevices() {
   try {
@@ -41,23 +45,7 @@ const openSession = async () => {
     const response = await axios.post(
       `${API_SERVER_URL}openvidu/api/sessions`,
       {
-        // "mediaMode": "ROUTED",
-        // "recordingMode": "MANUAL",
-        // "customSessionId": "CUSTOM_SESSION_ID",
-        // "forcedVideoCodec": "VP8",
-        // "allowTranscoding": false,
-        // "defaultRecordingProperties": {
-        //     "name": "MyRecording",
-        //     "hasAudio": true,
-        //     "hasVideo": true,
-        //     "outputMode": "INDIVIDUAL",
-        //     "recordingLayout": "BEST_FIT",
-        //     "resolution": "1280x720",
-        //     "frameRate": 25,
-        //     "shmSize": 536870912,
-        //     "mediaNode": "media_openvidu.beevarium.site"
-        //  },
-        recordingMode: "ALWAYS", //녹화 시점 선택
+        recordingMode: "MANUAL", //녹화 시점 선택
         customSessionId: "CUSTOM_SESSION_ID_TEST",
         allowTranscoding: true,
         mediaNode: "media_media.beevarium.site",
@@ -78,7 +66,8 @@ const openSession = async () => {
 
     //세션 열기 성공시, 자동으로 publisher로 연결
     await connectSession("PUBLISHER");
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Error", error);
   }
 };
@@ -116,10 +105,11 @@ const connectSession = async (role = "PUBLISHER") => {
       .connect(token)
       .then(() => {
         console.log("클라이언트측 세션 연결 성공");
+        publisherCam = OV.initPublisher("my-camera")
         publisher = OV.initPublisher("my-video", {
           videoSource: "screen", //카메라 X, 화면 공유 설정
           audioSource:
-            "6b5f46efba42a0e41745111c21dfeecb1bd09f0c271f97b23caeb8ee24ac3ab6", // 마이크 오디오 사용
+            "11867f37c8384ece8c3be983004b76c1908941732271d9e2abcc5bbfcc83e008", // 마이크 오디오 사용
           publishAudio: true, // 오디오 발행 활성화
           publishVideo: true, // 비디오 발행 활성화
         });
@@ -136,16 +126,23 @@ const connectSession = async (role = "PUBLISHER") => {
           .publish(publisher)
           .then(() => {
             console.log("화면 공유 스트림 발생 성공");
+            session.publish(publisherCam)
+              .then(() => {
+              console.log("카메라 연결 성공")
+             })
+              .catch((error) => {
+              console.error("카메라 연결 실패",error)
+            })
             // 오디오 입력중인지 확인
             // publisher.on('streamAudioVolumeChange', event => {
             //   console.log("Current volume:", event.value.newValue);
             //   // 여기서 event.value.newValue는 오디오 볼륨의 변화를 나타냅니다.
             //   // 볼륨이 0보다 크면 오디오가 입력되고 있음을 의미합니다.
+            // DB 스케일일 경우 마이너스로 나옴 
             // });
             // STT 구독 성공여부
 
-            session
-              .subscribeToSpeechToText(publisher.stream, "ko-KR")
+            session.subscribeToSpeechToText(publisher.stream, "ko-KR")
               .then(() => {
                 console.log("Speech-to-Text 구독 성공");
                 // STT 구독이 성공적이라면
@@ -167,11 +164,6 @@ const connectSession = async (role = "PUBLISHER") => {
               .catch((error) => {
                 console.error("Speech-to-Text 구독 실패:", error);
               });
-
-            //  // 녹화 테스트 코드
-            // const response2 = axios.post(`${API_SERVER_URL}openvidu/api/sessions/${sessionId}/recordings/MyRecording`)
-            // console.log(response2.data)
-            //여기서 전역변수에 저장
           })
           .catch((error) => {
             console.error("화면 공유 스트림 발행 실패", error);
@@ -252,31 +244,39 @@ const retrieveAll = async () => {
 // 녹화 시작
 const startRecording = async () => {
   try {
-    const response = await axios.post(
-      `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/recordings/MyRecording`,
-      {
-        // "id": "ses_YnDaGYNcd7",
-        object: "recording",
-        name: "MyRecording",
-        outputMode: "INDIVIDUAL",
-        hasAudio: true,
-        hasVideo: true,
-        resolution: "1280x720",
-        frameRate: 25,
-        sessionId: "CUSTOM_SESSION_ID",
-        mediaNode: "media_media.beevarium.site",
-        size: 303072692,
-        duration: 108000.234,
-        url: `${API_SERVER_URL}openvidu/recordings/CUSTOM_SESSION_ID/MyRecording.mp4`,
-        status: "ready",
-        recordingLayout: "BEST_FIT",
-      }
-    );
-    console.log(response.data);
+    const recordingResp = await axios.post(
+      `${API_SERVER_URL}openvidu/api/sessions/${sessionId}/recordings/MyRecording`);
+    console.log(recordingResp.data);
+    console.log(recordingResp.data.id)
+    recordingId = recordingResp.data.id
+    console.log("녹화 시작")
   } catch (error) {
-    console.log(error);
+    console.log("녹화 시작 실패" ,error);
   }
 };
+
+//녹화 중지 
+const stopRecording = async () => {
+  try {
+    await axios.delete(`${API_SERVER_URL}openvidu/api/recordings/${recordingId}`)
+    console.log("녹화 중지 성공")
+
+  }
+  catch (error) {
+    console.log( error,"녹화 중지 실패")
+  }
+}
+
+//녹화 객체 반환
+const retrieveRecord = async () => {
+  try {
+    recordingObj = await axios.get(`${API_SERVER_URL}openvidu/api/recordings/${recordingId}`)
+    console.log(recordingObj.data.url)
+  }
+  catch (error) {
+    console.error(error,"녹화 객체 반환 실패")
+  }
+}
 </script>
 
 <template>
@@ -285,6 +285,9 @@ const startRecording = async () => {
     <div id="my-video">
       <h1>스트리머 측 화면</h1>
       <button @click="disablevideo">화면 공유 중지</button>
+    </div>
+    <div id="my-camera">
+      <h1>스트리머 측 카메라</h1>
     </div>
     <div id="subscriber-video">
       <h1>방송 참여자 측 화면</h1>
@@ -302,6 +305,8 @@ const startRecording = async () => {
       <!--세션에 연결된 connection 확인하기 위한 get 요청 -->
       <button @click="connectionList">연결된 커넥션 확인</button>
       <button @click="startRecording">녹화 시작</button>
+      <button @click="stopRecording">녹화 정지</button>
+      <button @click="retrieveRecord">녹화 파일 확인</button>
       <button @click="getAudioInputDevices">장치 확인</button>
     </div>
   </div>
