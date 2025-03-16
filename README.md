@@ -2,13 +2,15 @@
 # 🐝 Beevarium
 
 ## 목차
-1. [개요](#-개요)
-2. [개발 환경](#-개발-환경)
-3. [서비스 화면](#-서비스-화면)
-4. [주요 기능](#-주요-기능)
-5. [기술 소개](#-기술-소개)
-6. [설계문서](#-설계문서)
-7. [팀원소개](#-팀원-소개)
+- [🐝 Beevarium](#-beevarium)
+  - [목차](#목차)
+    - [📄 개요](#-개요)
+    - [🛠 개발 환경](#-개발-환경)
+    - [🖥️ 서비스 화면](#️-서비스-화면)
+    - [🔍 주요 기능](#-주요-기능)
+    - [💡 기술 소개](#-기술-소개)
+    - [📑 설계문서](#-설계문서)
+    - [👥 팀원 소개](#-팀원-소개)
 
 ---
 
@@ -60,7 +62,7 @@ Beevarium은 실시간 번역과 필터링 기능을 제공하는 스트리밍 �
 
 **메인 페이지**
 
-<img src="https://lab.ssafy.com/s10-webmobile1-sub2/S10P12B203/uploads/9cd8889658076304b8db8b32c4a1f97a/Untitled__1_.png">
+<img src="/beevarium/readme_image/main.png">
 
 - 다양한 영상이 한 화면에 제공되는 스트리밍 사이트의 특성에 맞게 다크테마를 적용하여 눈의 피로가 적도록 디자인하였습니다.
 - 메인 컬러인 노란색과 배경화면의 검은이 보색대비를 이루어 포인트를 주도록 디자인하였습니다.
@@ -68,14 +70,14 @@ Beevarium은 실시간 번역과 필터링 기능을 제공하는 스트리밍 �
 
 **로그인 페이지**
 
-<img src="https://lab.ssafy.com/s10-webmobile1-sub2/S10P12B203/uploads/2ee9a8e5a0f638435184de33227887f6/Untitled__2_.png">
+<img src="/beevarium/readme_image/login.png">
 
 - 메인 컬러인 노란색과 배경화면의 검은이 보색대비를 이루어 포인트를 주도록 디자인하였습니다.
 - 일반 로그인과 소셜 로그인(구글, 네이버, 카카오)을 구현하여 사용자의 접근성을 높였습니다.
 
 **방송국 페이지**
 
-<img src="https://lab.ssafy.com/s10-webmobile1-sub2/S10P12B203/uploads/db74049a761eee990eb89fff964f01b9/Untitled__3_.png">
+<img src="/beevarium/readme_image/studio.png">
 
 - 가입한 모든 회원에게 개인 방송국이 하나씩 개설됩니다.
 - 팔로워 수를 확인할 수 있습니다.
@@ -85,7 +87,7 @@ Beevarium은 실시간 번역과 필터링 기능을 제공하는 스트리밍 �
 
 **방송하기**
 
-<img src="https://lab.ssafy.com/s10-webmobile1-sub2/S10P12B203/uploads/21c18d01608c51e5357dc42a085a1930/Untitled__4_.png">
+<img src="/beevarium/readme_image/streaming.png">
 
 - 우측 상단에 있는 방 송하기 버튼을 누르면 방송하기 페이지로 이동합니다.
 - 방송 시작 버튼을 누르면 스트리밍이 시작됩니다.
@@ -93,9 +95,9 @@ Beevarium은 실시간 번역과 필터링 기능을 제공하는 스트리밍 �
 
 **방송보기**
 
-<img src="https://lab.ssafy.com/s10-webmobile1-sub2/S10P12B203/uploads/8ffd20168dd91ef968f25c4bc317daab/Untitled__5_.png">
+<img src="/beevarium/readme_image/live.png">
 
-<img src="https://lab.ssafy.com/s10-webmobile1-sub2/S10P12B203/uploads/79dc71d0ab95adb1d9d6e3d3d1a68eec/Untitled__6_.png">
+<img src="/beevarium/readme_image/chat.png">
 
 - 스트리밍 중인 방송을 클릭하면 실시간으로 방송을 볼 수 있습니다.
 - 스트리머의 프로필 옆에 현재 시청자 수가 표시됩니다.
@@ -108,13 +110,13 @@ Beevarium은 실시간 번역과 필터링 기능을 제공하는 스트리밍 �
 
 **마이페이지**
 
-<img src="https://lab.ssafy.com/s10-webmobile1-sub2/S10P12B203/uploads/2d1caa43545754724e0be25734c94f08/Untitled__7_.png">
+<img src="/beevarium/readme_image/mypage.png">
 
 - 마이페이지에서 프로필 사진을 설정할 수 있습니다.
 - 유저가 보유한 포인트를 확인할 수 있습니다.
 - 팔로우 채널을 한 눈에 볼 수 있고 현재 라이브 중인 채널은 빨간색 live 아이콘이 표시됩니다.
 
-<img src="https://lab.ssafy.com/s10-webmobile1-sub2/S10P12B203/uploads/6696d6c1c15e17b89cbb7018582ef3c4/Untitled__8_.png">
+<img src="/beevarium/readme_image/fix.png">
 
 - 개인정보를 수정할 수 있다.
 
